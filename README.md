@@ -28,4 +28,6 @@ conda activate fenics-env
 python3 filename.py
 ```
 
-The ```.xdmf``` files in the visualization folders can be loaded directly in the paraview app to visualize the computed solutions.
+The ```.xdmf``` files will be written in the following directories: visualization/paraview, visualization_sqp/paraview, visualization_sqp/other/paraview, visualization_semismooth/paraview, visualization_other/paraview.
+
+They can be loaded directly in the paraview app to visualize the computed solutions.

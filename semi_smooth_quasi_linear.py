@@ -1057,9 +1057,11 @@ def example_1D(lam, mesh_size, num_steps):
 	P.set_maxit_and_tol(tol_nm, tol_sm, max_it_nm, max_it_sm)
 	# call solver
 	P.semi_smooth_solve()
+
+	P.visualize_paraview('visualization_semi_smooth_quasi_linear/paraview/1D/distributed')
 	
-	# P.visualize_1D(0, 1, 128, 'visualization_semi_smooth_quasi_linear')
-	# P.visualize_1D_exact(0, 1, 128, 'visualization_semi_smooth_quasi_linear')
+	P.visualize_1D(0, 1, 128, 'visualization_semi_smooth_quasi_linear')
+	P.visualize_1D_exact(0, 1, 128, 'visualization_semi_smooth_quasi_linear')
 	# compute errors
 	P.compute_relative_errors()
 
@@ -1230,158 +1232,6 @@ def example_2D(lam, mesh_size, num_steps):
 
 	return 0
 
-########################## neumann boundary ###############################
-
-def example_2D_N(lam, mesh_size, num_steps):
-
-	## python functions 
-	def csi(w):
-		return Constant(1.0) + 1/(1 + math.e**(-w))
-	def csi_p(w):
-		return math.e**(-w)/(1 + math.e**(-w))**2
-	def csi_pp(w):
-		return (math.e**(-2*w) - math.e**(-w))/(1 + math.e**(-w))**3
-
-	# dirichlet boundary is boundary
-	def boundary(x, on_boundary):
-		return on_boundary
-
-	def boundary_D(x, on_boundary):
-		if on_boundary:
-			if near(x[1], 1, 1e-8) or near(x[0], 1, 1e-8):
-				return True
-			else:
-				return False
-		else:
-			return False
-
-	def boundary_N(x, on_boundary):
-		if on_boundary:
-			if near(x[1], -1, 1e-8) or near(x[0], -1, 1e-8):
-				return True
-			else:
-				return False
-		else:
-			return False
-	
-	mu, tol_nm, tol_sm, max_it_nm, max_it_sm = 1, 1e-10, 1e-4, 20, 12
-
-
-	T = 1.0
-	beta = Constant( 1.0 )
-	y_0 = Expression(
-		'cos(pi*x[0])*cos(pi*x[1])',
-		degree=5)
-
-	p_end = Constant(0.0) 
-
-	y_target = Expression(
-		'''	cos(2*pi*t) * cos(pi*x[0])*cos(pi*x[1]) * (1 - 2*lam*pi)
-			+ 2*lam*pow(pi,2)*sin(2*pi*t) * cos(pi*x[0])*cos(pi*x[1]) 
-			* ( pow( pow(exp(1), -cos(2*pi*t) * cos(pi*x[0])*cos(pi*x[1]) ) + 1, -1) + 1 ) 
-			- lam*pow(pi,2)*sin(2*pi*t)*cos(2*pi*t)*(pow(sin(pi*x[0])*cos(pi*x[1]),2) + pow(cos(pi*x[0])*sin(pi*x[1]),2))
-			*(
-				2*pow(exp(1),cos(2*pi*t)*cos(pi*x[0])*cos(pi*x[1])) 
-				* pow(pow(exp(1),cos(2*pi*t)*cos(pi*x[0])*cos(pi*x[1])) + 1, -2) 
-				+ cos(2*pi*t)*cos(pi*x[0])*cos(pi*x[1])
-				* pow(exp(1),cos(2*pi*t)*cos(pi*x[0])*cos(pi*x[1])) 
-				* ( pow(exp(1),cos(2*pi*t)*cos(pi*x[0])*cos(pi*x[1])) - 1 ) 
-				* pow( pow(exp(1),cos(2*pi*t)*cos(pi*x[0])*cos(pi*x[1]) ) + 1, -3)
-			)
-			+ 2*lam*pow(pi,2)*cos(2*pi*t)*sin(2*pi*t) * pow(cos(pi*x[0]),2)*pow(cos(pi*x[1]),2)
-			* pow(exp(1),cos(2*pi*t)*cos(pi*x[0])*cos(pi*x[1])) * pow(pow(exp(1),cos(2*pi*t)*cos(pi*x[0])*cos(pi*x[1])) + 1, -2)
-		''',
-		t=0,
-		degree=5,
-		lam=1e-2)
-
-	y_exact = Expression(
-		'cos(2*pi*t) * cos(pi*x[0])*cos(pi*x[1])',
-		t=0,
-		degree=5)
-
-	p_exact = Expression(
-		'- lam* sin(2*pi*t) * cos(pi*x[0])*cos(pi*x[1])',
-		t=0,
-		degree=5,
-		lam=1e-2)
-	
-	# space dependant constraints
-	u_b = Expression(
-		'(0.2 + 0.5 * x[0]) * (0.2 + 0.5 * x[1])',
-		t=0,
-		degree=2)
-	u_a = Expression(
-		'- (0.8 - 0.5 * x[0]) * (0.8 - 0.5 * x[1])',
-		t=0,
-		degree=2)
-
-	u_exact = Expression(
-		'''( sin(2*pi*t) * cos(pi*x[0])*cos(pi*x[1]) > - (0.8 - 0.5 * x[0]) * (0.8 - 0.5 * x[1])  ?
-			 sin(2*pi*t) * cos(pi*x[0])*cos(pi*x[1]) : - (0.8 - 0.5 * x[0]) * (0.8 - 0.5 * x[1])  ) < (0.2 + 0.5 * x[0]) * (0.2 + 0.5 * x[1]) ?
-			 (sin(2*pi*t) * cos(pi*x[0])*cos(pi*x[1]) > - (0.8 - 0.5 * x[0]) * (0.8 - 0.5 * x[1])  ?
-			  sin(2*pi*t) * cos(pi*x[0])*cos(pi*x[1]) : - (0.8 - 0.5 * x[0]) * (0.8 - 0.5 * x[1]) ) : (0.2 + 0.5 * x[0]) * (0.2 + 0.5 * x[1])''',
-		t=0,
-		degree=5)
-	
-	f = Expression(
-		'''	- pow(pi,2) * cos(2*pi*t) 
-			*( 
-				cos(2*pi*t) * (pow(sin(pi*x[0])*cos(pi*x[1]),2) + pow(cos(pi*x[0])*sin(pi*x[1]),2)) 
-				* pow(exp(1), cos(2*pi*t) * cos(pi*x[0])*cos(pi*x[1])) 
-				* pow(pow(exp(1),cos(2*pi*t) * cos(pi*x[0])*cos(pi*x[1])) + 1, -2) 
-				- 2*cos(pi*x[0])*cos(pi*x[1]) 
-				* ( pow( pow(exp(1), -cos(2*pi*t) * cos(pi*x[0])*cos(pi*x[1]) ) + 1, -1) + 1 )
-			) 
-			- 2*pi*sin(2*pi*t)*cos(pi*x[0])*cos(pi*x[1])
-		''',
-		t=0,
-		degree=5)
-
-	g = Expression(
-		'''	-((sin(2*pi*t) * cos(pi*x[0])*cos(pi*x[1]) > - (0.8 - 0.5 * x[0]) * (0.8 - 0.5 * x[1])  ?
-			sin(2*pi*t) * cos(pi*x[0])*cos(pi*x[1]) : - (0.8 - 0.5 * x[0]) * (0.8 - 0.5 * x[1]) ) < (0.2 + 0.5 * x[0]) * (0.2 + 0.5 * x[1]) ?
-		 	(sin(2*pi*t) * cos(pi*x[0])*cos(pi*x[1]) > - (0.8 - 0.5 * x[0]) * (0.8 - 0.5 * x[1])  ?
-		  	sin(2*pi*t) * cos(pi*x[0])*cos(pi*x[1]) : - (0.8 - 0.5 * x[0]) * (0.8 - 0.5 * x[1]) ) : (0.2 + 0.5 * x[0]) * (0.2 + 0.5 * x[1]))''',
-		t=0,
-		degree=5)
-
-	total_time_start = time.perf_counter()
-
-	# build mesh
-	# 2D
-	new_mesh = RectangleMesh(Point(0.0,0.0), Point(1.0,1.0), mesh_size, mesh_size)
-	# initialize instance
-	P = Quasi_Linear_Problem_Box(T, num_steps, 'neumann boundary')
-	# set up problem by callig class attrubutes
-	P.set_state_space(new_mesh, 1)
-	P.set_dirichlet_boundary_conditions(Constant(0.0), Constant(0.0), None)
-	P.set_neumann_boundary_conditions(Constant(0.0), Constant(0.0), boundary)
-	# P.set_control_space(new_mesh, 1)
-	P.set_control_constraints(u_a, u_b)
-	P.set_cost(lam, y_target)
-	P.set_state_equation(beta, f, g, y_0, p_end)
-	P.set_exact_solution(y_exact, u_exact, p_exact)
-	# set quasi-linear parameters
-	P.set_non_linearity(mu, csi, csi_p, csi_pp)
-	P.set_maxit_and_tol(tol_nm, tol_sm, max_it_nm, max_it_sm)
-	# P.compute_proj_residuals_flag = True
-	# call solver
-	P.semi_smooth_solve()
-	# compute errors
-	P.compute_relative_errors()
-	# visualization
-	P.visualize_paraview('visualization_semi_smooth_quasi_linear/paraview/2D/neumann')
-	
-	P.plot_residuals('visualization_semi_smooth_quasi_linear/2D/neumann')
-	P.plot_inf_errors('visualization_semi_smooth_quasi_linear/2D/neumann')
-
-	total_time_end = time.perf_counter()
-
-	logging.info(f'TOTAL TIME: {total_time_end - total_time_start} s')
-
-	return 0
-
 ######################### PURELY TIME DEP CONTROL TEST EXAMPLES ########################
 
 ################################### 1D ###################################
@@ -1456,7 +1306,8 @@ def example_1D_t(lam, mesh_size, num_steps):
 	P.set_maxit_and_tol(tol_nm, tol_sm, max_it_nm, max_it_sm)
 	# call solver
 	P.semi_smooth_solve()
-	
+
+	P.visualize_paraview('visualization_semi_smooth_quasi_linear/paraview/1D/time')
 	P.visualize_1D(0, 1, 128, 'visualization_semi_smooth_quasi_linear/time')
 	P.visualize_1D_exact(0, 1, 128, 'visualization_semi_smooth_quasi_linear/time')
 	# compute errors

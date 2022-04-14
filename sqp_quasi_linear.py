@@ -1333,7 +1333,7 @@ def example_2D(lam, mesh_size, num_steps):
 	# compute errors
 	P.compute_errors()
 	# visualization
-	# P.visualize_paraview('visualization_sqp/paraview/2D/distributed')
+	P.visualize_paraview('visualization_sqp/paraview/2D/distributed')
 	P.plot_inf_errors('visualization_sqp/2D/distributed')
 
 	if P.compute_proj_residuals_flag:
@@ -1596,7 +1596,7 @@ def example_1D_t(lam, mesh_size, num_steps):
 	P.visualize_1D(0, 1, 128, 'visualization_sqp')
 	P.visualize_1D_exact(0, 1, 128, 'visualization_sqp')
 
-	P.visualize_paraview('visualization_sqp/paraview/1D')
+	P.visualize_paraview('visualization_sqp/paraview/1D/time')
 
 	P.visualize_purely_time_dep('visualization_sqp/time')
 

@@ -757,7 +757,7 @@ def example_1D(lam, mesh_size, num_steps):
 	P.visualize_1D(0, 1, 128, 'visualization')
 	P.visualize_1D_exact(0, 1, 128, 'visualization')
 
-	# P.visualize_paraview('visualization_sqp/paraview/1D')
+	P.visualize_paraview('visualization/paraview/1D')
 
 	P.compute_errors()
 
@@ -1184,7 +1184,6 @@ def example_2D(lam, mesh_size, num_steps):
 	P.compute_errors()
 	# visualization
 	P.visualize_paraview('visualization/paraview/2D/')
-	# P.plot_inf_errors('visualization/2D/')
 
 	logging.info(fr'computed order of convergence is $q =${math.log(P.incr_list[-1]/P.incr_list[-2]) / math.log(P.incr_list[-2]/P.incr_list[-3])}')
 
@@ -1203,14 +1202,10 @@ if __name__ == '__main__':
 
 	# plot_1D_vary_dt(1e-2)
 	# plot_1D_vary_size(1e-2)
-	# example_1D(1e-2, 20, 400)
+	# example_1D(1e-2, 40, 1600)
 	
 	# plot_2D_vary_size(1e-2)
 	# plot_2D_vary_dt(1e-2)
-	# example_2D(1e-2, 30, 900)
-
-	# plot_2D_N_vary_size(1e-2)
-	# plot_2D_N_vary_dt(1e-2)
-	# example_2D_N(1e-2, 10, 100)
+	# example_2D(1e-2, 24, 576)
 
 	logging.info('FINISHED')

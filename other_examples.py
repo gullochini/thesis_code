@@ -127,8 +127,8 @@ def example_1D(lam, mesh_size, num_steps):
 	# call solver
 	P.sqp_solve()
 	
-	P.visualize_1D(0, 1, 128, 'visualization_sqp/other')
-	# P.visualize_paraview('visualization_semi_smooth_quasi_linear/other')
+	P.visualize_1D(0, 1, 128, 'visualization_other')
+	P.visualize_paraview('visualization_other/paraview/1D/distributed')
 	print(P.evaluate_cost_functional(P.y, P.u))
 
 	J_y_u, J_y, J_u = P.evaluate_cost_functional(P.y, P.u)
@@ -186,16 +186,7 @@ def example_2D(lam, mesh_size, num_steps):
 
 	y_exact, u_exact, p_exact = Constant(0.0), Constant(0.0), Constant(0.0) 
 
-	# y_0   	= Expression(
-	# 	'cos(pi*x[0])*cos(pi*x[1])',
-	# 	degree=5)
-
 	y_0 = Constant(0.0)
-	# y_0 = Expression(
-	# 	'''	
-	# 		x[0] * x[1] 
-	# 	''',
-	# 	degree=5)
 	f = Constant(0.0)
 	g = Constant(0.0)
 
@@ -243,13 +234,13 @@ def example_2D(lam, mesh_size, num_steps):
 	# call solver
 	P.sqp_solve()
 	# visualization
-	P.visualize_paraview('visualization_sqp/other/2D/paraview/distributed')
+	P.visualize_paraview('visualization_other/paraview/2D/distributed')
 
 	J_y_u, J_y, J_u = P.evaluate_cost_functional(P.y, P.u)
 	print(f'optimal cost: {J_y_u}, contributions J_y: {J_y}, J_u: {J_u} ')
 
 	if P.compute_proj_residuals_flag:
-		P.plot_residuals('visualization_sqp/other/2D/distributed')
+		P.plot_residuals('visualization_other/2D/distributed')
 
 	total_time_end = time.perf_counter()
 
@@ -351,15 +342,15 @@ def example_2D_t(lam, mesh_size, num_steps):
 	# call solver
 	P.sqp_solve()
 	# visualization
-	P.visualize_paraview('visualization_sqp/other/2D/paraview/time')
+	P.visualize_paraview('visualization_other/paraview/2D/time')
 
-	P.visualize_purely_time_dep('visualization_sqp/other/2D/paraview/time')
+	P.visualize_purely_time_dep('visualization_other/2D/time')
 
 	J_y_u, J_y, J_u = P.evaluate_cost_functional(P.y, P.u)
 	print(f'optimal cost: {J_y_u}, contributions J_y: {J_y}, J_u: {J_u} ')
 
 	if P.compute_proj_residuals_flag:
-		P.plot_residuals('visualization_sqp/other/2D/time')
+		P.plot_residuals('visualization_other/2D/time')
 
 	total_time_end = time.perf_counter()
 
@@ -523,7 +514,7 @@ def example_2D_t_vary_lam(mesh_size, num_steps):
 
 	ax.legend(loc="lower left")
 
-	plt.savefig('visualization_sqp/other/2D/time/control_vary_lam.pdf')
+	plt.savefig('visualization_other/2D/time/control_vary_lam.pdf')
 
 	total_time_end = time.perf_counter()
 
@@ -541,7 +532,7 @@ if __name__ == '__main__':
 
 	# example_1D(1e-2, 40, 1600)
 	# example_2D(1e-2, 10, 100)
-	example_2D_t(1e-2, 10, 100)
-	example_2D_t_vary_lam(12, 144)
+	# example_2D_t(1e-2, 10, 100)
+	# example_2D_t_vary_lam(12, 144)
 
 	logging.info('FINISHED')
