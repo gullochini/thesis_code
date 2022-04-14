@@ -1,17 +1,31 @@
-# quasi-linear-PDE-optimal-control
-Numerical solver of optimal control problems governed by quasilinear parabolic partial differential equations
+# On the numerical solution of optimal control problems governed by quasilinear parabolic PDEs
+## Master thesis - Guglielmo Chini
 
-for documentation, type
-pydoc filename (e.g. pydoc OCP)
+Numerical solver of optimal control problems governed by quasilinear parabolic partial differential equations.
 
-choose and uncomment the example in the __main__ section of one of the following .py files:
+### documentation
+the command
+```bash
+pydoc filename
+```
+shows the documentation for the file ```filename.py```
 
+### run an example
+choose and uncomment the example in the ```__main__``` section of one of the following ```.py``` files:
+
+```
 quasi_linear_solver_t.py
 sqp_quasi_linear.py
-semi_smooth_quasi_linear.py 
+semi_smooth_quasi_linear.py
 other_examples.py
 error_estimates.py
+```
 
-to run them, an istallation of FEniCS on Anaconda is necessary.
+In order for them to run, an istallation of FEniCS on Anaconda is necessary. For instance, if FEniCS is located in the venv fenics-env
 
-The paraview .py scripts, .xdmf and .psdm files in the visualization folders can be loaded directly in the paraview app.
+```bash
+conda activate fenics-env
+python3 filename.py
+```
+
+The ```.xdmf``` files in the visualization folders can be loaded directly in the paraview app to visualize the computed solutions.
